@@ -16,6 +16,16 @@ npm run build -w backend   # TypeScript compile
 npm run db:generate -w backend  # Generate Drizzle migrations
 npm run db:migrate -w backend   # Run Drizzle migrations
 npm run postman:sync            # Sync routes to Postman (also runs on pre-commit)
+
+# Docker
+./scripts.sh up                 # Build and start PostgreSQL + backend
+./scripts.sh down               # Stop containers, keep data
+./scripts.sh reset              # Nuke everything, rebuild, start fresh
+./scripts.sh logs               # Tail all service logs
+./scripts.sh db:shell           # psql into running database
+npm run docker:up               # Alias for ./scripts.sh up
+npm run docker:down             # Alias for ./scripts.sh down
+npm run docker:reset            # Alias for ./scripts.sh reset
 ```
 
 ## Architecture

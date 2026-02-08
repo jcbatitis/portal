@@ -4,50 +4,60 @@ Personal services portal — a monorepo with a Fastify backend and frontend clie
 
 ## Prerequisites
 
-- Node.js >= 22
-- PostgreSQL >= 16
+- Docker and Docker Compose
+- Node.js >= 22 (for local development without Docker)
 
-## Setup
+## Quick Start (Docker)
 
 ```bash
-# Install dependencies
+# Start everything (PostgreSQL + backend)
+./scripts.sh up
+
+# Stop
+./scripts.sh down
+
+# Nuke and rebuild from scratch
+./scripts.sh reset
+```
+
+The backend runs on `http://localhost:3000`.
+
+## Local Development (without Docker)
+
+```bash
 npm install
-
-# Create the database
 createdb portal
-
-# Run migrations
 npm run db:migrate -w backend
-```
-
-## Development
-
-```bash
-# Start backend with hot reload
 npm run dev:backend
-
-# Run backend tests
-npm run test:backend
 ```
 
-The backend runs on `http://localhost:3000` by default.
+## Docker Commands
+
+| Command | Description |
+|---|---|
+| `./scripts.sh up` | Build and start all services |
+| `./scripts.sh down` | Stop containers, keep data |
+| `./scripts.sh reset` | Down + delete data + rebuild + up |
+| `./scripts.sh build` | Force rebuild images |
+| `./scripts.sh logs` | Tail all service logs |
+| `./scripts.sh db:shell` | Open psql shell |
 
 ## Environment Variables
 
-Create a `.env` file in `backend/` to override defaults:
+Copy `.env.example` to `.env` at the project root and adjust as needed:
 
 ```env
-PORT=3000
-HOST=0.0.0.0
-DATABASE_URL=postgres://localhost:5432/portal
-NODE_ENV=development
+# Docker / PostgreSQL
+POSTGRES_DB=portal
+POSTGRES_USER=portal
+POSTGRES_PASSWORD=portal
 
 # Postman sync (optional)
 POSTMAN_API_KEY=
 POSTMAN_WORKSPACE_ID=
 ```
 
-See `backend/.env.example` for a full template.
+For local development (without Docker), also create `backend/.env` — see `backend/.env.example`.
 
 ## Project Structure
 
