@@ -1,0 +1,12 @@
+{
+  "name": "portal",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev -w backend",
+    "test:backend": "npm run test -w backend"
+  }
+}
