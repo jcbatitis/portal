@@ -17,6 +17,9 @@ export default async function authRoutes(fastify: FastifyInstance) {
           },
         },
       },
+      config: {
+        rateLimit: { max: fastify.config.RATE_LIMIT_LOGIN_MAX, timeWindow: '1 minute' },
+      },
     },
     async (request, reply) => {
       const { username, password } = request.body;

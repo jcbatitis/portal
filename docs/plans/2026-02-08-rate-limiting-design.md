@@ -9,7 +9,7 @@ The API has no request throttling. Any client can hit any endpoint without limit
 Use `@fastify/rate-limit` with an in-memory store. Two tiers: a global baseline limit on all routes plus a stricter override on login.
 
 - **Global**: 100 requests per minute per IP (configurable via `RATE_LIMIT_MAX` env var)
-- **Login**: 5 requests per minute per IP on `POST /login`
+- **Login**: 5 requests per minute per IP on `POST /login` (configurable via `RATE_LIMIT_LOGIN_MAX` env var)
 - **Store**: In-memory (default). Counters reset on restart. Swap to Redis later by changing one config option.
 - **Key**: `request.ip`
 
@@ -21,7 +21,7 @@ Fastify plugin that registers `@fastify/rate-limit` globally:
 
 - `max`: reads from `fastify.config.RATE_LIMIT_MAX` (default 100)
 - `timeWindow`: `'1 minute'`
-- `errorResponseBuilder`: returns `{ error: 'Too many requests, please try again later' }`
+- `errorResponseBuilder`: returns `{ statusCode: 429, error: 'Too many requests, please try again later' }`
 - Uses `fp` wrapper so the plugin applies across all route scopes
 
 ### 2. `backend/src/routes/auth.ts`
@@ -32,7 +32,7 @@ Add route-level rate limit override to `POST /login`:
 {
   schema: { /* existing */ },
   config: {
-    rateLimit: { max: 5, timeWindow: '1 minute' }
+    rateLimit: { max: fastify.config.RATE_LIMIT_LOGIN_MAX, timeWindow: '1 minute' }
   }
 }
 ```
@@ -43,7 +43,7 @@ Register `rateLimitPlugin` after `sessionPlugin`, before route plugins.
 
 ### 4. `backend/src/config.ts`
 
-Add `RATE_LIMIT_MAX` to env schema (type `integer`, default `100`).
+Add `RATE_LIMIT_MAX` (integer, default 100) and `RATE_LIMIT_LOGIN_MAX` (integer, default 5) to env schema.
 
 ### 5. No changes to `health.ts` (covered by global limit)
 
@@ -53,11 +53,14 @@ Add `RATE_LIMIT_MAX` to env schema (type `integer`, default `100`).
 
 Dedicated app instance to isolate rate limit counters from other test files.
 
-1. **Global limit**: Send 101 `GET /health` requests. Assert request 101 returns 429.
+Uses `RATE_LIMIT_MAX=10` to keep iterations low.
+
+1. **Global limit**: Send 11 `GET /health` requests. Assert request 11 returns 429.
 2. **Login limit**: Send 6 `POST /login` requests. Assert request 6 returns 429.
 3. Verify 429 response includes `Retry-After` header.
+4. Verify `x-ratelimit-limit` and `x-ratelimit-remaining` headers on normal responses.
 
-Existing tests unaffected (well under the 100/min global limit).
+Auth tests set `RATE_LIMIT_LOGIN_MAX=50` to avoid being throttled by the login limit.
 
 ## Response Behavior
 

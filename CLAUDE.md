@@ -44,6 +44,7 @@ backend/src/
 │   └── schema.ts      # Drizzle table definitions
 ├── plugins/
 │   ├── db.ts          # Fastify plugin: decorates `fastify.db` and `fastify.pgPool`
+│   ├── rate-limit.ts  # Fastify plugin: global rate limiting via @fastify/rate-limit
 │   └── session.ts     # Fastify plugin: cookie + session with PostgreSQL store
 └── routes/
     ├── health.ts      # GET /health, GET /health/db
@@ -64,6 +65,7 @@ backend/scripts/
 - **Session auth**: `plugins/session.ts` sets up `@fastify/cookie` + `@fastify/session` with `connect-pg-simple` for PostgreSQL-backed sessions. Session data typed via `declare module 'fastify' { interface Session }`. The session store shares the same `pg.Pool` as Drizzle ORM via `fastify.pgPool`.
 - **Auth routes**: No shared auth middleware yet — `/logout` and `/me` check `request.session.userId` inline. Extract a `requireAuth` preHandler when 3+ routes need protection.
 - **Seed script**: `scripts/seed.ts` creates a test user (`admin`/`admin123`) using `INSERT ... ON CONFLICT DO NOTHING`. Runs automatically in Docker on container start (after migrations).
+- **Rate limiting**: `plugins/rate-limit.ts` registers `@fastify/rate-limit` globally (in-memory store). Global limit: `RATE_LIMIT_MAX` (default 100) req/min per IP. `POST /login` has a stricter override: `RATE_LIMIT_LOGIN_MAX` (default 5) req/min. Returns `{ error: 'Too many requests, please try again later' }` on 429.
 
 ## Conventions
 

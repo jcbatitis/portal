@@ -3,6 +3,9 @@ import bcrypt from 'bcrypt';
 import { buildApp } from '../src/app.js';
 import { users } from '../src/db/schema.js';
 
+// Raise login rate limit so auth tests aren't throttled.
+process.env.RATE_LIMIT_LOGIN_MAX = '50';
+
 const app = await buildApp();
 
 beforeAll(async () => {

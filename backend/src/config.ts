@@ -22,6 +22,14 @@ export const envSchema = {
       type: 'string',
       default: 'dev-secret-change-me-in-production!!',
     },
+    RATE_LIMIT_MAX: {
+      type: 'integer',
+      default: 100,
+    },
+    RATE_LIMIT_LOGIN_MAX: {
+      type: 'integer',
+      default: 5,
+    },
   },
 } as const;
 
@@ -33,6 +41,8 @@ declare module 'fastify' {
       DATABASE_URL: string;
       NODE_ENV: string;
       SESSION_SECRET: string;
+      RATE_LIMIT_MAX: number;
+      RATE_LIMIT_LOGIN_MAX: number;
     };
   }
 }
