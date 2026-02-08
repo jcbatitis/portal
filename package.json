@@ -7,6 +7,7 @@
   ],
   "scripts": {
     "dev:backend": "npm run dev -w backend",
-    "test:backend": "npm run test -w backend"
+    "test:backend": "npm run test -w backend",
+    "postman:sync": "npm run postman:sync -w backend"
   }
 }
