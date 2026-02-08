@@ -3,20 +3,36 @@ import { buildApp } from '../src/app.js';
 
 const POSTMAN_API = 'https://api.postman.com';
 
+interface JsonSchema {
+  type?: string;
+  properties?: Record<string, JsonSchema & { examples?: unknown[]; default?: unknown }>;
+  required?: string[];
+}
+
 interface RouteInfo {
   method: string;
   url: string;
+  schema?: { body?: JsonSchema };
+}
+
+interface PostmanHeader {
+  key: string;
+  value: string;
 }
 
 interface PostmanItem {
   name: string;
   request?: {
     method: string;
-    header: never[];
+    header: PostmanHeader[];
     url: {
       raw: string;
       host: string[];
       path: string[];
+    };
+    body?: {
+      mode: string;
+      raw: string;
     };
   };
   item?: PostmanItem[];
@@ -37,7 +53,11 @@ function collectRoutes(): Promise<{ routes: RouteInfo[]; cleanup: () => Promise<
 
       for (const method of methods) {
         if (['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
-          routes.push({ method, url: routeOptions.url });
+          routes.push({
+            method,
+            url: routeOptions.url,
+            schema: routeOptions.schema as RouteInfo['schema'],
+          });
         }
       }
     });
@@ -47,6 +67,39 @@ function collectRoutes(): Promise<{ routes: RouteInfo[]; cleanup: () => Promise<
 
     return { routes, cleanup: () => app.close() };
   })();
+}
+
+// ── Sample Payload Generation ──────────────────────────────────────
+
+function generateSampleFromSchema(schema: JsonSchema): Record<string, unknown> {
+  const sample: Record<string, unknown> = {};
+
+  if (!schema.properties) return sample;
+
+  for (const [key, prop] of Object.entries(schema.properties)) {
+    if (prop.examples && prop.examples.length > 0) {
+      sample[key] = prop.examples[0];
+    } else if (prop.default !== undefined) {
+      sample[key] = prop.default;
+    } else {
+      switch (prop.type) {
+        case 'string':
+          sample[key] = 'string';
+          break;
+        case 'number':
+        case 'integer':
+          sample[key] = 0;
+          break;
+        case 'boolean':
+          sample[key] = false;
+          break;
+        default:
+          sample[key] = null;
+      }
+    }
+  }
+
+  return sample;
 }
 
 // ── Postman Collection Builder ──────────────────────────────────────
@@ -72,18 +125,34 @@ function buildPostmanCollection(routes: RouteInfo[]) {
   const folders: PostmanItem[] = [];
 
   for (const [prefix, groupRoutes] of groups) {
-    const items: PostmanItem[] = groupRoutes.map((route) => ({
-      name: `${route.method} ${route.url}`,
-      request: {
-        method: route.method,
-        header: [],
-        url: {
-          raw: `{{baseUrl}}${route.url}`,
-          host: ['{{baseUrl}}'],
-          path: route.url.split('/').filter(Boolean),
+    const items: PostmanItem[] = groupRoutes.map((route) => {
+      const item: PostmanItem = {
+        name: `${route.method} ${route.url}`,
+        request: {
+          method: route.method,
+          header: [],
+          url: {
+            raw: `{{baseUrl}}${route.url}`,
+            host: ['{{baseUrl}}'],
+            path: route.url.split('/').filter(Boolean),
+          },
         },
-      },
-    }));
+      };
+
+      if (route.schema?.body) {
+        const sample = generateSampleFromSchema(route.schema.body);
+        item.request!.body = {
+          mode: 'raw',
+          raw: JSON.stringify(sample, null, 2),
+        };
+        item.request!.header.push({
+          key: 'Content-Type',
+          value: 'application/json',
+        });
+      }
+
+      return item;
+    });
 
     folders.push({ name: prefix, item: items });
   }

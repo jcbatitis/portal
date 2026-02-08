@@ -10,7 +10,7 @@ FROM deps AS dev
 
 WORKDIR /app
 COPY . .
-CMD ["npx", "tsx", "watch", "src/index.ts"]
+CMD ["sh", "-c", "npx drizzle-kit migrate && npx tsx scripts/seed.ts && npx tsx watch src/index.ts"]
 
 # ── Stage 3: Production build ───────────────────────────────────────
 FROM deps AS build

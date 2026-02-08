@@ -52,6 +52,9 @@ POSTGRES_DB=portal
 POSTGRES_USER=portal
 POSTGRES_PASSWORD=portal
 
+# Session
+SESSION_SECRET=change-me-to-a-random-32-char-string
+
 # Postman sync (optional)
 POSTMAN_API_KEY=
 POSTMAN_WORKSPACE_ID=
@@ -70,10 +73,19 @@ portal/
 
 ## API Endpoints
 
-| Method | Path         | Description              |
-|--------|--------------|--------------------------|
-| GET    | /health      | Server health check      |
-| GET    | /health/db   | Database connectivity check |
+| Method | Path         | Auth | Description                          |
+|--------|--------------|------|--------------------------------------|
+| GET    | /health      | No   | Server health check                  |
+| GET    | /health/db   | No   | Database connectivity check          |
+| POST   | /login       | No   | Login with `{ username, password }`  |
+| POST   | /logout      | Yes  | Destroy session                      |
+| GET    | /me          | Yes  | Current user info                    |
+
+### Test User
+
+Docker automatically seeds a test user on first start:
+- **Username:** `admin`
+- **Password:** `admin123`
 
 ## Postman Sync
 

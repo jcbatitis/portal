@@ -18,6 +18,10 @@ export const envSchema = {
       type: 'string',
       default: 'development',
     },
+    SESSION_SECRET: {
+      type: 'string',
+      default: 'dev-secret-change-me-in-production!!',
+    },
   },
 } as const;
 
@@ -28,6 +32,7 @@ declare module 'fastify' {
       HOST: string;
       DATABASE_URL: string;
       NODE_ENV: string;
+      SESSION_SECRET: string;
     };
   }
 }
