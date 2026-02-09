@@ -15,11 +15,11 @@ describe('Global rate limit', () => {
     const max = 10;
 
     for (let i = 0; i < max; i++) {
-      const res = await app.inject({ method: 'GET', url: '/health' });
+      const res = await app.inject({ method: 'GET', url: '/api/health' });
       expect(res.statusCode).toBe(200);
     }
 
-    const blocked = await app.inject({ method: 'GET', url: '/health' });
+    const blocked = await app.inject({ method: 'GET', url: '/api/health' });
     expect(blocked.statusCode).toBe(429);
     expect(blocked.json()).toMatchObject({ error: 'Too many requests, please try again later' });
     expect(blocked.headers['retry-after']).toBeDefined();
@@ -27,7 +27,7 @@ describe('Global rate limit', () => {
 
   it('includes rate limit headers on normal responses', async () => {
     // Use a different route to avoid the exhausted /health counter.
-    const res = await app.inject({ method: 'GET', url: '/me' });
+    const res = await app.inject({ method: 'GET', url: '/api/me' });
     expect(res.headers['x-ratelimit-limit']).toBeDefined();
     expect(res.headers['x-ratelimit-remaining']).toBeDefined();
   });
@@ -40,14 +40,14 @@ describe('Login rate limit', () => {
     for (let i = 0; i < max; i++) {
       await app.inject({
         method: 'POST',
-        url: '/login',
+        url: '/api/login',
         payload: { username: 'nobody', password: 'wrong' },
       });
     }
 
     const blocked = await app.inject({
       method: 'POST',
-      url: '/login',
+      url: '/api/login',
       payload: { username: 'nobody', password: 'wrong' },
     });
 

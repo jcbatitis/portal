@@ -11,7 +11,7 @@ describe('GET /health', () => {
   it('returns status ok', async () => {
     const response = await app.inject({
       method: 'GET',
-      url: '/health',
+      url: '/api/health',
     });
 
     expect(response.statusCode).toBe(200);
@@ -23,7 +23,7 @@ describe('GET /health/db', () => {
   it('returns db connected when database is reachable', async () => {
     const response = await app.inject({
       method: 'GET',
-      url: '/health/db',
+      url: '/api/health/db',
     });
 
     expect(response.statusCode).toBe(200);

@@ -6,11 +6,13 @@
 - **Backend**: Node.js, Fastify v5, TypeScript (strict)
 - **Database**: PostgreSQL via Drizzle ORM with `pg` (node-postgres) driver
 - **Auth**: Session + cookie via `@fastify/session`, PostgreSQL session store (`connect-pg-simple`), bcrypt password hashing
+- **Frontend**: React, Vite, TypeScript (strict), Tailwind CSS v4, shadcn components
 - **Testing**: Vitest with Fastify's `inject()` for in-memory HTTP
 
 ## Commands
 
 ```bash
+npm run dev:frontend       # Hot reload frontend (vite)
 npm run dev:backend        # Hot reload backend (tsx watch)
 npm run test:backend       # Run backend tests (vitest)
 npm run build -w backend   # TypeScript compile
@@ -47,8 +49,8 @@ backend/src/
 │   ├── rate-limit.ts  # Fastify plugin: global rate limiting via @fastify/rate-limit
 │   └── session.ts     # Fastify plugin: cookie + session with PostgreSQL store
 └── routes/
-    ├── health.ts      # GET /health, GET /health/db
-    └── auth.ts        # POST /login, POST /logout, GET /me
+    ├── health.ts      # GET /api/health, GET /api/health/db
+    └── auth.ts        # POST /api/login, POST /api/logout, GET /api/me
 backend/scripts/
 ├── postman-sync.ts    # Syncs registered routes to Postman collection
 └── seed.ts            # Seeds test user (admin/admin123), idempotent
@@ -65,7 +67,29 @@ backend/scripts/
 - **Session auth**: `plugins/session.ts` sets up `@fastify/cookie` + `@fastify/session` with `connect-pg-simple` for PostgreSQL-backed sessions. Session data typed via `declare module 'fastify' { interface Session }`. The session store shares the same `pg.Pool` as Drizzle ORM via `fastify.pgPool`.
 - **Auth routes**: No shared auth middleware yet — `/logout` and `/me` check `request.session.userId` inline. Extract a `requireAuth` preHandler when 3+ routes need protection.
 - **Seed script**: `scripts/seed.ts` creates a test user (`admin`/`admin123`) using `INSERT ... ON CONFLICT DO NOTHING`. Runs automatically in Docker on container start (after migrations).
-- **Rate limiting**: `plugins/rate-limit.ts` registers `@fastify/rate-limit` globally (in-memory store). Global limit: `RATE_LIMIT_MAX` (default 100) req/min per IP. `POST /login` has a stricter override: `RATE_LIMIT_LOGIN_MAX` (default 5) req/min. Returns `{ error: 'Too many requests, please try again later' }` on 429.
+- **Rate limiting**: `plugins/rate-limit.ts` registers `@fastify/rate-limit` globally (in-memory store). Global limit: `RATE_LIMIT_MAX` (default 100) req/min per IP. `POST /api/login` has a stricter override: `RATE_LIMIT_LOGIN_MAX` (default 5) req/min. Returns `{ error: 'Too many requests, please try again later' }` on 429.
+- **API prefix**: All routes registered under `/api` prefix in `app.ts` via `fastify.register(plugin, { prefix: '/api' })`.
+
+### Frontend Structure
+
+```
+frontend/src/
+├── App.tsx              # Root component — renders LoginPage
+├── main.tsx             # React entry point
+├── index.css            # Tailwind CSS + shadcn theme variables
+├── components/
+│   ├── ui/              # shadcn components (button, input, label, card)
+│   └── login-page.tsx   # Login form with API call and error handling
+└── lib/
+    └── utils.ts         # cn() helper for merging Tailwind classes
+```
+
+### Frontend Patterns
+
+- **Vite proxy**: Dev server proxies `/api` requests to `http://localhost:3000` (backend). No CORS needed in dev.
+- **shadcn components**: Installed via `npx shadcn@latest add <name>`. Components live in `src/components/ui/` and are fully owned (not node_modules).
+- **Path aliases**: `@/*` maps to `./src/*` (configured in tsconfig + vite.config.ts).
+- **API prefix**: All backend routes are registered under `/api` prefix. Frontend fetches use `/api/login`, `/api/me`, etc.
 
 ## Conventions
 

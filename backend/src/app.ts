@@ -14,8 +14,8 @@ export async function buildApp(app?: FastifyInstance) {
   await instance.register(dbPlugin);
   await instance.register(sessionPlugin);
   await instance.register(rateLimitPlugin);
-  await instance.register(healthRoutes);
-  await instance.register(authRoutes);
+  await instance.register(healthRoutes, { prefix: '/api' });
+  await instance.register(authRoutes, { prefix: '/api' });
 
   return instance;
 }

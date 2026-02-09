@@ -21,18 +21,18 @@ afterAll(async () => {
   await app.close();
 });
 
-function extractCookie(response: { headers: Record<string, string | string[] | undefined> }): string {
+function extractCookie(response: Awaited<ReturnType<typeof app.inject>>): string {
   const setCookie = response.headers['set-cookie'];
   if (!setCookie) return '';
   const header = Array.isArray(setCookie) ? setCookie[0] : setCookie;
   return header.split(';')[0];
 }
 
-describe('POST /login', () => {
+describe('POST /api/login', () => {
   it('returns username on valid credentials', async () => {
     const response = await app.inject({
       method: 'POST',
-      url: '/login',
+      url: '/api/login',
       payload: { username: 'testuser', password: 'testpass' },
     });
 
@@ -44,7 +44,7 @@ describe('POST /login', () => {
   it('returns 401 on wrong password', async () => {
     const response = await app.inject({
       method: 'POST',
-      url: '/login',
+      url: '/api/login',
       payload: { username: 'testuser', password: 'wrong' },
     });
 
@@ -55,7 +55,7 @@ describe('POST /login', () => {
   it('returns 401 on nonexistent user', async () => {
     const response = await app.inject({
       method: 'POST',
-      url: '/login',
+      url: '/api/login',
       payload: { username: 'nobody', password: 'whatever' },
     });
 
@@ -66,7 +66,7 @@ describe('POST /login', () => {
   it('returns 400 when username or password is missing', async () => {
     const response = await app.inject({
       method: 'POST',
-      url: '/login',
+      url: '/api/login',
       payload: { username: 'testuser' },
     });
 
@@ -74,11 +74,11 @@ describe('POST /login', () => {
   });
 });
 
-describe('GET /me', () => {
+describe('GET /api/me', () => {
   it('returns user info with valid session', async () => {
     const loginResponse = await app.inject({
       method: 'POST',
-      url: '/login',
+      url: '/api/login',
       payload: { username: 'testuser', password: 'testpass' },
     });
 
@@ -86,7 +86,7 @@ describe('GET /me', () => {
 
     const meResponse = await app.inject({
       method: 'GET',
-      url: '/me',
+      url: '/api/me',
       headers: { cookie },
     });
 
@@ -99,7 +99,7 @@ describe('GET /me', () => {
   it('returns 401 without session', async () => {
     const response = await app.inject({
       method: 'GET',
-      url: '/me',
+      url: '/api/me',
     });
 
     expect(response.statusCode).toBe(401);
@@ -107,11 +107,11 @@ describe('GET /me', () => {
   });
 });
 
-describe('POST /logout', () => {
+describe('POST /api/logout', () => {
   it('destroys session and returns logged out', async () => {
     const loginResponse = await app.inject({
       method: 'POST',
-      url: '/login',
+      url: '/api/login',
       payload: { username: 'testuser', password: 'testpass' },
     });
 
@@ -119,7 +119,7 @@ describe('POST /logout', () => {
 
     const logoutResponse = await app.inject({
       method: 'POST',
-      url: '/logout',
+      url: '/api/logout',
       headers: { cookie },
     });
 
@@ -129,7 +129,7 @@ describe('POST /logout', () => {
     // Session should be invalidated
     const meResponse = await app.inject({
       method: 'GET',
-      url: '/me',
+      url: '/api/me',
       headers: { cookie },
     });
 
@@ -139,7 +139,7 @@ describe('POST /logout', () => {
   it('returns 401 without session', async () => {
     const response = await app.inject({
       method: 'POST',
-      url: '/logout',
+      url: '/api/logout',
     });
 
     expect(response.statusCode).toBe(401);

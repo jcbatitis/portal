@@ -6,8 +6,8 @@ import connectPgSimple from 'connect-pg-simple';
 
 declare module 'fastify' {
   interface Session {
-    userId: number;
-    username: string;
+    userId?: number;
+    username?: string;
   }
 }
 
