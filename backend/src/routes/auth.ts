@@ -46,20 +46,12 @@ export default async function authRoutes(fastify: FastifyInstance) {
     },
   );
 
-  fastify.post('/logout', async (request, reply) => {
-    if (!request.session.userId) {
-      return reply.code(401).send({ error: 'Not authenticated' });
-    }
-
+  fastify.post('/logout', { preHandler: [fastify.requireAuth] }, async (request) => {
     await request.session.destroy();
     return { status: 'logged out' };
   });
 
-  fastify.get('/me', async (request, reply) => {
-    if (!request.session.userId) {
-      return reply.code(401).send({ error: 'Not authenticated' });
-    }
-
+  fastify.get('/me', { preHandler: [fastify.requireAuth] }, async (request) => {
     return {
       userId: request.session.userId,
       username: request.session.username,

@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, timestamp } from 'drizzle-orm/pg-core';
+import { integer, pgTable, serial, timestamp, unique, varchar } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -7,3 +7,19 @@ export const users = pgTable('users', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+export const userSettings = pgTable(
+  'user_settings',
+  {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id')
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+    key: varchar('key', { length: 255 }).notNull(),
+    value: varchar('value', { length: 1024 }).notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    uniqueUserKey: unique().on(table.userId, table.key),
+  }),
+);

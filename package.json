@@ -12,6 +12,8 @@
     "test:backend": "npm run test -w backend",
     "typecheck:backend": "npm run typecheck -w backend",
     "postman:sync": "npm run postman:sync -w backend",
+    "db:generate": "npm run db:generate -w backend",
+    "db:migrate": "npm run db:migrate -w backend",
     "db:seed": "npm run db:seed -w backend",
     "docker:up": "./scripts.sh up",
     "docker:down": "./scripts.sh down",
