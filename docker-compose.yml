@@ -35,6 +35,37 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    # ── Traefik (uncomment when deploying with Traefik) ──
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
+    #   - "traefik.http.services.backend.loadbalancer.server.port=3000"
+
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    ports:
+      - "${VITE_PORT:-5173}:5173"
+    environment:
+      API_PROXY_TARGET: http://backend:3000
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+    depends_on:
+      - backend
+    # ── Traefik (uncomment when deploying with Traefik) ──
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
+    #   - "traefik.http.routers.frontend.priority=1"
+    #   - "traefik.http.services.frontend.loadbalancer.server.port=5173"
 
 volumes:
   pgdata:
+
+# ── Traefik network (uncomment when deploying with Traefik) ──
+# networks:
+#   default:
+#     name: traefik
+#     external: true
