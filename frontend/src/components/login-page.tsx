@@ -92,7 +92,7 @@ export function LoginPage() {
           <div className="space-y-1.5">
             <Label
               htmlFor="username"
-              className="font-mono text-[11px] font-medium uppercase tracking-widest text-muted-foreground"
+              className="text-xs font-medium uppercase tracking-widest text-muted-foreground"
             >
               Username
             </Label>
@@ -103,13 +103,13 @@ export function LoginPage() {
               placeholder="admin"
               autoComplete="username"
               required
-              className="h-10 border-0 bg-secondary/60 font-mono text-sm placeholder:text-muted-foreground/40 focus-visible:ring-1 focus-visible:ring-primary/50"
+              className="h-10 border-0 bg-secondary/60 text-sm placeholder:text-muted-foreground/40 focus-visible:ring-1 focus-visible:ring-primary/50"
             />
           </div>
           <div className="space-y-1.5">
             <Label
               htmlFor="password"
-              className="font-mono text-[11px] font-medium uppercase tracking-widest text-muted-foreground"
+              className="text-xs font-medium uppercase tracking-widest text-muted-foreground"
             >
               Password
             </Label>
@@ -121,7 +121,7 @@ export function LoginPage() {
               placeholder="••••••••"
               autoComplete="current-password"
               required
-              className="h-10 border-0 bg-secondary/60 font-mono text-sm placeholder:text-muted-foreground/40 focus-visible:ring-1 focus-visible:ring-primary/50"
+              className="h-10 border-0 bg-secondary/60 text-sm placeholder:text-muted-foreground/40 focus-visible:ring-1 focus-visible:ring-primary/50"
             />
           </div>
 
@@ -151,14 +151,6 @@ export function LoginPage() {
           </Button>
         </form>
 
-        {/* Footer */}
-        {false && (
-          <div className="mt-8 border-t border-border pt-5">
-            <p className="text-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/50">
-              Secure authentication
-            </p>
-          </div>
-        )}
       </div>
     </div>
   )

@@ -3,8 +3,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
@@ -67,22 +65,16 @@ export function HomePage() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary ring-1 ring-primary/20 transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary ring-1 ring-primary/20 transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40"
               aria-label="User menu"
             >
               {initial}
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel className="font-normal">
-              <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-                {user.username}
-              </span>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
+          <DropdownMenuContent align="end" className="min-w-0">
             <DropdownMenuItem
               onClick={handleLogout}
-              className="cursor-pointer text-sm"
+              className="cursor-pointer px-3 py-2 text-xs"
             >
               Sign out
             </DropdownMenuItem>
@@ -102,7 +94,7 @@ export function HomePage() {
 
         <div className="relative w-full max-w-[340px]">
           <div className="space-y-2">
-            <p className="font-mono text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
+            <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
               Dashboard
             </p>
             <h1 className="text-2xl font-semibold tracking-tight">
