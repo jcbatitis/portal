@@ -1,5 +1,12 @@
 import { useLoaderData } from "react-router"
-import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface UserData {
   userId: number
@@ -23,25 +30,90 @@ export function HomePage() {
     window.location.href = "/"
   }
 
+  const initial = user.username.charAt(0).toUpperCase()
+
   return (
-    <div className="flex min-h-svh items-center justify-center px-4">
-      <div className="w-full max-w-[340px] space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Welcome, {user.username}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            You are signed in.
-          </p>
+    <div className="relative flex min-h-svh flex-col overflow-hidden">
+      {/* Toolbar */}
+      <header className="relative z-10 flex h-14 shrink-0 items-center justify-between border-b border-border px-5">
+        {/* Left — Branding */}
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 ring-1 ring-primary/20">
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              className="h-3.5 w-3.5 text-primary"
+              aria-hidden="true"
+            >
+              <path
+                d="M8 1L14.5 5v6L8 15L1.5 11V5L8 1Z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M8 5.5L11 7.5v3L8 12.5L5 10.5v-3L8 5.5Z"
+                fill="currentColor"
+                opacity="0.4"
+              />
+            </svg>
+          </div>
+          <span className="text-sm font-medium tracking-wide text-muted-foreground">
+            Portal
+          </span>
         </div>
-        <Button
-          onClick={handleLogout}
-          variant="outline"
-          className="h-10 w-full font-medium tracking-wide"
+
+        {/* Right — User menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary ring-1 ring-primary/20 transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label="User menu"
+            >
+              {initial}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuLabel className="font-normal">
+              <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                {user.username}
+              </span>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleLogout}
+              className="cursor-pointer text-sm"
+            >
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </header>
+
+      {/* Main content */}
+      <main className="relative flex flex-1 items-center justify-center px-4">
+        {/* Radial glow — same as login page */}
+        <div
+          className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          aria-hidden="true"
         >
-          Sign out
-        </Button>
-      </div>
+          <div className="h-[600px] w-[600px] rounded-full bg-primary/[0.03] blur-[120px]" />
+        </div>
+
+        <div className="relative w-full max-w-[340px]">
+          <div className="space-y-2">
+            <p className="font-mono text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
+              Dashboard
+            </p>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Welcome back, {user.username}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              You're signed in and ready to go.
+            </p>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }
